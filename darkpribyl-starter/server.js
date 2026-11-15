@@ -137,30 +137,46 @@ app.delete("/api/operations/:id", requireTelegramUser, async (req, res, next) =>
 
 app.post("/telegram-webhook", async (req, res) => { try { const message = req.body?.message; const chatId = message?.chat?.id; const text = message?.text;
 if (chatId && text?.startsWith("/start")) {
+  const webAppUrl = process.env.RENDER_EXTERNAL_URL;
+
+  if (!webAppUrl || !botToken) {
+    console.error("Missing webAppUrl or botToken");
+    return res.sendStatus(500);
+  }
+
   const response = await fetch(
-    `https://api.telegram.org/bot${botToken}/sendMessage`,
+    "https://api.telegram.org/bot" + botToken + "/sendMessage",
     {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
-    body: JSON.stringify({
-  chat_id: chatId,
-  text: "Добро пожаловать в DARKприбыль! 🖤",
-  reply_markup: {
-    inline_keyboard: [
-      [
-        {
-          text: "🚀 Открыть DARKприбыль",
-          web_app: {
-            url: webAppUrl
-          }
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: "Добро пожаловать в DARKприбыль! 🖤",
+        reply_markup: {
+          inline_keyboard: [
+            [
+              {
+                text: "🚀 Открыть DARKприбыль",
+                web_app: {
+                  url: webAppUrl
+                }
+              }
+            ]
+          ]
         }
-      ]
-    ]
-  }
-})
+      })
+    }
+  );
 
+  if (!response.ok) {
+    console.error("Telegram error:", await response.text());
+  }
+}
+
+return res.sendStatus(200);
+} catch (error) { console.error("Telegram webhook error:", error); return res.sendStatus(500); } });
   if (!response.ok) {
     console.error("Telegram error:", await response.text());
   }
