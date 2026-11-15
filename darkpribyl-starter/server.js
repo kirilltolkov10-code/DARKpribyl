@@ -7,6 +7,7 @@ import pg from "pg";
 
 const { Pool } = pg;
 const app = express();
+app.use(express.json());
 const port = Number(process.env.PORT || 3000);
 const botToken = process.env.TELEGRAM_BOT_TOKEN;
 const databaseUrl = process.env.DATABASE_URL;
@@ -144,4 +145,32 @@ const distPath = path.join(__dirname, "dist");
 app.use(express.static(distPath));
 app.get("*", (_req, res) => res.sendFile(path.join(distPath, "index.html")));
 
-app.listen(port, () => console.log(`DARKприбыль listening on ${port}`));
+app.post("/telegram-webhook", async (req, res) => { try { const message = req.body?.message; const chatId = message?.chat?.id; const text = message?.text;
+if (chatId && text?.startsWith("/start")) {
+  const response = await fetch(
+    `https://api.telegram.org/bot${botToken}/sendMessage`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: "Добро пожаловать в DARKприбыль! 🖤"
+      })
+    }
+  );
+
+  if (!response.ok) {
+    console.error("Telegram sendMessage failed");
+  }
+}
+
+res.sendStatus(200);
+} catch (error) { console.error("Telegram webhook error:", error); res.sendStatus(500); } });
+app.listen(port, async () => { console.log(Darkприбыль listening on ${port});
+const appUrl = process.env.RENDER_EXTERNAL_URL;
+if (appUrl) { try { const response = await fetch( https://api.telegram.org/bot${botToken}/setWebhook, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: ${appUrl}/telegram-webhook }) } );
+  console.log("Telegram webhook:", await response.json());
+} catch (error) {
+  console.error("Webhook setup failed:", error);
+}
+} });
