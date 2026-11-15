@@ -168,9 +168,22 @@ res.sendStatus(200);
 } catch (error) { console.error("Telegram webhook error:", error); res.sendStatus(500); } });
 console.log("DARKприбыль listening on " + port);
 const appUrl = process.env.RENDER_EXTERNAL_URL;
-if (appUrl) { try { const response = await fetch( https://api.telegram.org/bot${botToken}/setWebhook, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: ${appUrl}/telegram-webhook }) } );
-  console.log("Telegram webhook:", await response.json());
-} catch (error) {
-  console.error("Webhook setup failed:", error);
+if (appUrl) {
+try {
+const response = await fetch(
+“https://api.telegram.org/bot” + botToken + “/setWebhook”,
+{
+method: “POST”,
+headers: {
+“Content-Type”: “application/json”
+},
+body: JSON.stringify({
+url: appUrl + “/telegram-webhook”
+})
 }
-} });
+);
+console.log("Telegram webhook:", await response.json());
+} catch (error) {
+console.error(“Webhook setup failed:”, error);
+}
+}
