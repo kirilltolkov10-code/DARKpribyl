@@ -171,7 +171,7 @@ const appUrl = process.env.RENDER_EXTERNAL_URL;
 if (appUrl) {
 try {
 const response = await fetch(
-“https://api.telegram.org/bot” + botToken + “/setWebhook”,
+"https://api.telegram.org/bot" + botToken + "/setWebhook",
 {
 method: “POST”,
 headers: {
