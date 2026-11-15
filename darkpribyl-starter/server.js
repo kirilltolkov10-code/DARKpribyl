@@ -144,12 +144,22 @@ if (chatId && text?.startsWith("/start")) {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: "Добро пожаловать в DARKприбыль! 🖤"
-      })
-    }
-  );
+    body: JSON.stringify({
+  chat_id: chatId,
+  text: "Добро пожаловать в DARKприбыль! 🖤",
+  reply_markup: {
+    inline_keyboard: [
+      [
+        {
+          text: "🚀 Открыть DARKприбыль",
+          web_app: {
+            url: webAppUrl
+          }
+        }
+      ]
+    ]
+  }
+})
 
   if (!response.ok) {
     console.error("Telegram error:", await response.text());
