@@ -177,13 +177,6 @@ if (chatId && text?.startsWith("/start")) {
 
 return res.sendStatus(200);
 } catch (error) { console.error("Telegram webhook error:", error); return res.sendStatus(500); } });
-  if (!response.ok) {
-    console.error("Telegram error:", await response.text());
-  }
-}
-
-return res.sendStatus(200);
-} catch (error) { console.error("Telegram webhook error:", error); return res.sendStatus(500); } });
 const __dirname = path.dirname(fileURLToPath(import.meta.url)); const distPath = path.join(__dirname, "dist");
 app.use(express.static(distPath));
 app.use((req, res, next) => { if (req.method !== "GET") return next();
