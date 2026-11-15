@@ -135,16 +135,6 @@ app.delete("/api/operations/:id", requireTelegramUser, async (req, res, next) =>
   }
 });
 
-app.use((error, _req, res, _next) => {
-  console.error(error);
-  res.status(500).json({ error: "Внутренняя ошибка сервера" });
-});
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const distPath = path.join(__dirname, "dist");
-app.use(express.static(distPath));
-app.get("*", (_req, res) => res.sendFile(path.join(distPath, "index.html")));
-
 app.post("/telegram-webhook", async (req, res) => { try { const message = req.body?.message; const chatId = message?.chat?.id; const text = message?.text;
 if (chatId && text?.startsWith("/start")) {
   const response = await fetch(
@@ -162,17 +152,22 @@ if (chatId && text?.startsWith("/start")) {
   );
 
   if (!response.ok) {
-    console.error(
-      "Telegram sendMessage failed:",
-      await response.text()
-    );
+    console.error("Telegram error:", await response.text());
   }
 }
 
 return res.sendStatus(200);
 } catch (error) { console.error("Telegram webhook error:", error); return res.sendStatus(500); } });
-console.log("DARKприбыль listening on " + port);
+const __dirname = path.dirname(fileURLToPath(import.meta.url)); const distPath = path.join(__dirname, "dist");
+app.use(express.static(distPath));
+app.use((req, res, next) => { if (req.method !== "GET") return next();
+res.sendFile(path.join(distPath, "index.html"), (error) => { if (error) next(error); }); });
+app.use((error, _req, res, _next) => { console.error(error); res.status(500).json({ error: "Внутренняя ошибка сервера" }); });
 const appUrl = process.env.RENDER_EXTERNAL_URL;
+app.listen(port, "0.0.0.0", async () => { console.log("DARKприбыль listening on " + port);
 if (appUrl) { try { const response = await fetch( "https://api.telegram.org/bot" + botToken + "/setWebhook", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: appUrl + "/telegram-webhook" }) } );
-console.log("Telegram webhook:", await response.json());
-} catch (error) { console.error("Webhook setup failed:", error); } }
+  console.log("Telegram webhook:", await response.json());
+} catch (error) {
+  console.error("Webhook setup failed:", error);
+}
+} });
